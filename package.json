@@ -1,0 +1,31 @@
+{
+	"name": "typesafe-env",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build": "bun run build:esm && bun run build:cjs && bun run build:types",
+		"build:esm": "bun build ./src/index.ts --outdir ./dist/esm --format esm",
+		"build:cjs": "bun build ./src/index.ts --outdir ./dist/cjs --format cjs",
+		"build:types": "bun x tsc -p tsconfig.json --emitDeclarationOnly --declaration --outDir dist/types"
+	},
+	"files": [
+		"dist"
+	],
+	"main": "./dist/cjs/index.js",
+	"module": "./dist/esm/index.js",
+	"types": "./dist/types/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/types/index.d.ts",
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.js"
+		}
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5",
+		"zod": "^4.3.5"
+	}
+}

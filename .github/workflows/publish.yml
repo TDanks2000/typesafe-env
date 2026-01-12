@@ -1,33 +1,34 @@
 name: Publish to npm
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Release (create tag + GitHub Release)"]
+    types: [completed]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
 
 concurrency:
   group: publish-${{ github.ref }}
   cancel-in-progress: false
 
-permissions:
-  contents: read
-  id-token: write # REQUIRED for npm Trusted Publishing (OIDC)
-
 jobs:
   publish:
-    name: Publish
     runs-on: ubuntu-latest
-
-    # Prevent publishing from forks.
-    if: github.repository_owner == 'tdanks2000'
+    if: |
+      github.repository_owner == 'tdanks2000' &&
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' ||
+      github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
-      # npm Trusted Publishing requires npm CLI >= 11.5.1.
-      # Using Node 24 generally satisfies this.
-      - name: Setup Node.js
+      # Trusted Publishing requires npm CLI >= 11.5.1
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -38,16 +39,7 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Cache Bun
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.bun/install/cache
-          key: bun-cache-${{ runner.os }}-${{ hashFiles('bun.lockb', 'bun.lock', 'package.json') }}
-          restore-keys: |
-            bun-cache-${{ runner.os }}-
-
-      - name: Install dependencies
+      - name: Install
         run: bun install --frozen-lockfile
 
       - name: Test

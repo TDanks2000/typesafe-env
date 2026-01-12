@@ -1,6 +1,6 @@
 {
 	"name": "@tdanks2000/typesafe-env",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Runtime-validated, type-safe environment variables for TypeScript projects",
 	"type": "module",
 	"private": false,

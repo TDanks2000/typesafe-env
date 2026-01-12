@@ -27,13 +27,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Node
+      - name: Set up Node environment
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           registry-url: https://registry.npmjs.org
 
-      - run: npm install -g npm@latest
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -42,6 +41,9 @@ jobs:
 
       - name: Install
         run: bun install --frozen-lockfile
+
+      # Ensure npm 11.5.1 or later for trusted publishing
+      - run: npm install -g npm@latest
 
       - name: Test
         env:
@@ -54,4 +56,4 @@ jobs:
         run: bun run build
 
       - name: Publish (OIDC)
-        run: npm publish 
+        run: npm publish --access public

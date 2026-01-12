@@ -3,13 +3,13 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "typesafe-env",
+      "name": "@tdanks2000/typesafe-env",
       "devDependencies": {
         "@types/bun": "latest",
       },
       "peerDependencies": {
         "typescript": "^5",
-        "zod": "^4.3.5",
+        "zod": "^3 || ^4",
       },
     },
   },

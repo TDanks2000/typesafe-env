@@ -1,15 +1,45 @@
 {
-	"name": "typesafe-env",
+	"name": "@tdanks2000/typesafe-env",
+	"version": "1.0.0",
+	"description": "Runtime-validated, type-safe environment variables for TypeScript projects",
 	"type": "module",
-	"private": true,
+	"private": false,
 	"scripts": {
 		"build": "bun run build:esm && bun run build:cjs && bun run build:types",
 		"build:esm": "bun build ./src/index.ts --outdir ./dist/esm --format esm",
 		"build:cjs": "bun build ./src/index.ts --outdir ./dist/cjs --format cjs",
-		"build:types": "bun x tsc -p tsconfig.json --emitDeclarationOnly --declaration --outDir dist/types"
+		"build:types": "bun x tsc -p tsconfig.build.json",
+		"clean": "rm -rf ./dist",
+		"prepublishOnly": "bun run clean && bun run build"
 	},
+	"keywords": [
+		"env",
+		"environment",
+		"variables",
+		"typescript",
+		"type-safe",
+		"zod",
+		"validation",
+		"runtime",
+		"nextjs",
+		"vite",
+		"nodejs",
+		"bun"
+	],
+	"author": "tdanks2000",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/tdanks2000/typesafe-env"
+	},
+	"bugs": {
+		"url": "https://github.com/tdanks2000/typesafe-env/issues"
+	},
+	"homepage": "https://github.com/tdanks2000/typesafe-env#readme",
 	"files": [
-		"dist"
+		"dist",
+		"README.md",
+		"LICENSE"
 	],
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",

@@ -146,6 +146,7 @@ export function createSplitEnv<
 			skipValidation,
 			onError,
 			isServer: false,
+			strict: false,
 		});
 
 		// Return only client env, but cast to full type for TypeScript
@@ -162,6 +163,7 @@ export function createSplitEnv<
 		skipValidation,
 		onError,
 		isServer: true,
+		strict: false,
 	});
 
 	const clientEnv = createEnv({
@@ -171,10 +173,11 @@ export function createSplitEnv<
 		skipValidation,
 		onError,
 		isServer: false,
+		strict: false,
 	});
 
-	// Merge and return
-	return { ...serverEnv, ...clientEnv } as Readonly<
+	// Merge and return frozen object
+	return Object.freeze({ ...serverEnv, ...clientEnv }) as Readonly<
 		z.infer<TServer> & z.infer<TClient>
 	>;
 }

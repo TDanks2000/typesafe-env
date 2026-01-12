@@ -15,12 +15,27 @@ describe("createEnv with Bun.env", () => {
 				LOG_LEVEL: Bun.env.LOG_LEVEL,
 				PORT: Bun.env.PORT,
 			},
-			// Bun.env has lots of keys (PATH, HOME, etc) so strict would fail.
 			strict: false,
 		});
 
 		expect(env.DATABASE_URL).toBe("https://example.com/test-db");
 		expect(env.PORT).toBe(4321);
 		expect(env.LOG_LEVEL).toBe("debug");
+	});
+
+	it("works with optional Bun.env values", () => {
+		const env = createEnv({
+			schema: z.object({
+				OPTIONAL_VAR: z.string().optional(),
+				REQUIRED_VAR: z.string(),
+			}),
+			runtimeEnv: {
+				OPTIONAL_VAR: Bun.env.OPTIONAL_VAR,
+				REQUIRED_VAR: Bun.env.DATABASE_URL,
+			},
+			strict: false,
+		});
+
+		expect(env.REQUIRED_VAR).toBeTruthy();
 	});
 });

@@ -19,6 +19,22 @@ describe("createEnv", () => {
 		expect(env.DATABASE_URL).toBe("https://example.com/db");
 	});
 
+	it("applies default values from schema", () => {
+		const env = createEnv({
+			schema: z.object({
+				PORT: z.coerce.number().default(3000),
+				DEBUG: z.boolean().default(false),
+			}),
+			runtimeEnv: {
+				PORT: undefined,
+				DEBUG: undefined,
+			},
+		});
+
+		expect(env.PORT).toBe(3000);
+		expect(env.DEBUG).toBe(false);
+	});
+
 	it("throws with readable message on invalid env", () => {
 		expect(() => {
 			createEnv({
@@ -40,7 +56,7 @@ describe("createEnv", () => {
 				}),
 				runtimeEnv: {
 					DATABASE_URL: "https://example.com",
-					// @ts-expect-error
+					// @ts-expect-error - testing runtime behavior
 					EXTRA_KEY: "should fail",
 				},
 				strict: true,
@@ -55,7 +71,7 @@ describe("createEnv", () => {
 			}),
 			runtimeEnv: {
 				DATABASE_URL: "https://example.com",
-				// @ts-expect-error
+				// @ts-expect-error - testing runtime behavior
 				EXTRA_KEY: "ok",
 			},
 			strict: false,
@@ -76,5 +92,56 @@ describe("createEnv", () => {
 				},
 			});
 		}).toThrow(TypeError);
+	});
+
+	it("validates complex schemas with transforms", () => {
+		const env = createEnv({
+			schema: z.object({
+				ALLOWED_ORIGINS: z
+					.string()
+					.transform((s) => s.split(","))
+					.pipe(z.array(z.string().url())),
+			}),
+			runtimeEnv: {
+				ALLOWED_ORIGINS: "https://example.com,https://app.example.com",
+			},
+		});
+
+		expect(env.ALLOWED_ORIGINS).toEqual([
+			"https://example.com",
+			"https://app.example.com",
+		]);
+	});
+
+	it("returns frozen object to prevent mutations", () => {
+		const env = createEnv({
+			schema: z.object({
+				API_KEY: z.string(),
+			}),
+			runtimeEnv: {
+				API_KEY: "secret",
+			},
+		});
+
+		expect(Object.isFrozen(env)).toBe(true);
+		expect(() => {
+			// @ts-expect-error - testing runtime behavior
+			env.API_KEY = "new-value";
+		}).toThrow();
+	});
+
+	it("skips validation when skipValidation is true", () => {
+		const env = createEnv({
+			schema: z.object({
+				PORT: z.coerce.number(),
+			}),
+			runtimeEnv: {
+				PORT: "invalid",
+			},
+			skipValidation: true,
+		});
+
+		// @ts-expect-error - skipValidation bypasses type coercion
+		expect(env.PORT).toBe("invalid");
 	});
 });

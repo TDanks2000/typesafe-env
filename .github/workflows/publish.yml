@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
   id-token: write
+  contents: read
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -27,12 +27,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      # Trusted Publishing requires npm CLI >= 11.5.1
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
+
+      - run: npm install -g npm@latest
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -53,4 +54,4 @@ jobs:
         run: bun run build
 
       - name: Publish (OIDC)
-        run: npm publish --access public
+        run: npm publish 
